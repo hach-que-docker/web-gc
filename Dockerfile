@@ -1,10 +1,13 @@
-FROM hachque/opensuse
+FROM hachque/systemd-boot
 
-RUN zypper mr -e openSUSE_13.1_OSS
-RUN zypper mr -e openSUSE_13.1_Updates
-RUN zypper ref
-RUN zypper --non-interactive in nginx
+# Install Nginx and PHP-FPM
+RUN zypper --non-interactive in nginx php-fpm
 
+# Link services into the default target
+RUN ln -s /usr/lib/systemd/system/nginx.service /usr/lib/systemd/system/default.target.wants/nginx.service
+RUN ln -s /usr/lib/systemd/system/php-fpm.socket /usr/lib/systemd/system/default.target.wants/php-fpm.socket
+
+# Expose Nginx on port 80 and 443
 EXPOSE 80
 EXPOSE 443
 
