@@ -14,6 +14,9 @@ RUN mkdir /etc/nginx
 # Remove existing web files
 RUN rm -Rv /srv/www
 
+# Set correct permissions for storage
+RUN chown nginx:nginx /var/lib/php5
+
 # Add files
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD mime.types /etc/nginx/mime.types
