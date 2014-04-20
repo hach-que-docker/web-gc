@@ -1,9 +1,0 @@
-[Unit]
-Description=The nginx HTTP and reverse proxy server
-
-[Service]
-ExecStartPre=/usr/sbin/nginx -t
-ExecStart=/usr/sbin/nginx -g "daemon off;"
-ExecReload=/bin/kill -s HUP $MAINPID
-ExecStop=/bin/kill -s QUIT $MAINPID
-PrivateTmp=true

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+set -x
+
+mkdir -pv /srv/www
+
+pushd /srv/www
+
+if [ -e /config/script.pre ]; then
+    echo "Applying pre-configuration script..."
+    sudo -u nginx /config/script.pre
+fi
+
+if [ -e /config/script.post ]; then
+    echo "Applying post-configuration script..."
+    sudo -u nginx /config/script.post
+fi
+
+popd
