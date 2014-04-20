@@ -4,17 +4,18 @@
 if [ ! -d /config ]; then
     echo "You have not mapped /config"
 fi
+if [ ! -e /config/generate ]; then
+    echo "You have not created /config/generate"
+fi
 
 # Copy servers from configuration
-if [ -d /config/servers ]; then
-    echo "Generating server configurations..."
-    mkdir /etc/nginx/servers
-    cp /config/servers/generate /etc/nginx/servers/generate
-    pushd /etc/nginx/servers
-    ./generate
-    popd
-    rm generate
-fi
+echo "Generating server configurations..."
+mkdir /etc/nginx/servers
+cp /config/generate /etc/nginx/servers/generate
+pushd /etc/nginx/servers
+./generate
+popd
+rm generate
 
 if [ -d /config/certs ]; then
     echo "Copying SSL certificates..."
