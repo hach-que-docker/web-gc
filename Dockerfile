@@ -27,6 +27,7 @@ ADD mime.types /etc/nginx/mime.types
 ADD fastcgi.conf /etc/nginx/fastcgi.conf
 ADD 25-nginx /etc/init.simple/25-nginx
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
+ADD 15-php-session /etc/init.simple/15-php-session
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
