@@ -27,7 +27,9 @@ ADD mime.types /etc/nginx/mime.types
 ADD fastcgi.conf /etc/nginx/fastcgi.conf
 ADD 25-nginx /etc/init.simple/25-nginx
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
+ADD 20-postfix /etc/init.simple/20-postfix
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
+ADD 00-hosts /etc/init.simple/00-hosts
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
@@ -38,5 +40,16 @@ CMD ["/init"]
 RUN zypper --non-interactive patch || true
 RUN zypper --non-interactive patch || true
 
-# Remove 00-patch so that launching on Google Cloud runs faster
+# Remove 00-patch so that launching in pre-baked images runs faster
 RUN rm /etc/init.simple/00-patch
+
+# Install Memcache support in PHP
+RUN zypper --non-interactive ref
+RUN zypper --non-interactive in php5-pear libmemcached libmemcached-devel php5-devel gcc-c++ make
+RUN echo "/usr" | pecl install memcached
+RUN zypper --non-interactive rm -u php5-pear libmemcached-devel php5-devel gcc-c++ make
+
+# Install the Memcache configuration (you should add this to your baked image's Dockerfile if you want Memcache sessions)
+#ADD memcached.ini /etc/php5/conf.d/memcached.ini
+
+
