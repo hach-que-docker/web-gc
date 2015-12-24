@@ -3,6 +3,9 @@ FROM hachque/systemd-none
 # Install requirements
 RUN zypper --non-interactive in git nginx php-fpm php5-mbstring php5-mysql php5-curl php5-pcntl php5-gd php5-openssl php5-ldap php5-fileinfo php5-posix php5-json php5-iconv php5-mcrypt php5-zlib ca-certificates ca-certificates-mozilla ca-certificates-cacert sudo
 
+# Force reinstall cronie
+RUN zypper --non-interactive install -f cronie
+
 # Expose Nginx on port 80 and 443
 EXPOSE 80
 EXPOSE 443
@@ -25,11 +28,12 @@ RUN chown nginx:nginx /var/lib/php5
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD mime.types /etc/nginx/mime.types
 ADD fastcgi.conf /etc/nginx/fastcgi.conf
-ADD 25-nginx /etc/init.simple/25-nginx
+ADD 25-servers /etc/init.simple/25-servers
 ADD 25-php-fpm /etc/init.simple/25-php-fpm
 ADD 20-postfix /etc/init.simple/20-postfix
 ADD 10-boot-conf /etc/init.simple/10-boot-conf
 ADD 00-hosts /etc/init.simple/00-hosts
+ADD 50-cronie /etc/init.simple/50-cronie
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
@@ -39,6 +43,9 @@ CMD ["/init"]
 # Re-patch anything that's needed
 RUN zypper --non-interactive patch || true
 RUN zypper --non-interactive patch || true
+
+# Clone Let's Encrypt
+RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
 
 # Remove 00-patch so that launching in pre-baked images runs faster
 RUN rm /etc/init.simple/00-patch
