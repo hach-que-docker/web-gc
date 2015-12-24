@@ -31,6 +31,11 @@ for a in /config/servers/*; do
     echo "Generating a HTTP server for $a..." 
     
     FRAGMENT=$(basename $a)
+    
+    if [ "${FRAGMENT:(-4)}" == ".ssl" ]; then
+        continue
+    fi
+    
     CONTENT=$(cat $a)
     
     cat >/etc/nginx/servers/http-$FRAGMENT.conf <<EOF
@@ -59,12 +64,15 @@ done
 mkdir /srv/letsencrypt-webroot
 
 # If the Let's Encrypt folder doesn't exist, create it
-if [ ! -d /config/letsencrypt ]; then
-    mkdir /config/letsencrypt
+if [ ! -d /certs ]; then
+    echo "Unable to issue certificates because there is no volume mapped to /certs.  You need to "
+    echo "volume mount /certs to the Docker container so there is persistent storage for the "
+    echo "private key files that are issued!"
+    exit 1
 fi
 
 # Link the Let's Encrypt folder into the configuration directory
-ln -s /config/letsencrypt /etc/letsencrypt
+ln -s /certs /etc/letsencrypt
 
 # Get the email address to use for issuance
 LETS_ENCRYPT_EMAIL=$(cat /config/letsencrypt.email)
@@ -74,6 +82,7 @@ LETS_ENCRYPT_DOMAINS=$(cat /config/letsencrypt.domains)
 
 # Create the preamble for the Let's Encrypt weekly reissuance script.
 echo "#!/bin/bash" > /etc/cron.weekly/letsencrypt
+chmod a+x /etc/cron.weekly/letsencrypt
 
 # Perform the Let's Encrypt certificate issuance for all domains
 for DOMAIN in $LETS_ENCRYPT_DOMAINS; do
@@ -98,6 +107,11 @@ for a in /config/servers/*; do
     echo "Generating a HTTPS server for $a..." 
     
     FRAGMENT=$(basename $a)
+    
+    if [ "${FRAGMENT:(-4)}" == ".ssl" ]; then
+        continue
+    fi
+    
     CONTENT=$(cat $a)
     CONTENT_SSL=$(cat $a.ssl)
     
@@ -105,7 +119,14 @@ for a in /config/servers/*; do
 server {
     listen *:443;
     
+    ssl                  on;
     $CONTENT_SSL
+
+    ssl_session_timeout  5m;
+
+    ssl_protocols  SSLv2 SSLv3 TLSv1;
+    ssl_ciphers  HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers   on;
     
     $CONTENT
     

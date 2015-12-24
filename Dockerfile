@@ -6,6 +6,24 @@ RUN zypper --non-interactive in git nginx php-fpm php5-mbstring php5-mysql php5-
 # Force reinstall cronie
 RUN zypper --non-interactive install -f cronie
 
+# Re-patch anything that's needed
+RUN zypper --non-interactive patch || true
+RUN zypper --non-interactive patch || true
+
+# Install Memcache support in PHP
+RUN zypper --non-interactive ref
+RUN zypper --non-interactive in php5-pear libmemcached libmemcached-devel php5-devel gcc-c++ make
+RUN echo "/usr" | pecl install memcached
+RUN zypper --non-interactive rm -u php5-pear libmemcached-devel php5-devel gcc-c++ make
+
+# Clone Let's Encrypt
+RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
+
+# Install letsencrypt
+WORKDIR /srv/letsencrypt
+RUN ./letsencrypt-auto --help
+WORKDIR /
+
 # Expose Nginx on port 80 and 443
 EXPOSE 80
 EXPOSE 443
@@ -37,24 +55,14 @@ ADD 50-cronie /etc/init.simple/50-cronie
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
 
-# Set /init as the default
-CMD ["/init"]
-
-# Re-patch anything that's needed
-RUN zypper --non-interactive patch || true
-RUN zypper --non-interactive patch || true
-
-# Clone Let's Encrypt
-RUN git clone https://github.com/letsencrypt/letsencrypt /srv/letsencrypt
-
 # Remove 00-patch so that launching in pre-baked images runs faster
 RUN rm /etc/init.simple/00-patch
 
-# Install Memcache support in PHP
-RUN zypper --non-interactive ref
-RUN zypper --non-interactive in php5-pear libmemcached libmemcached-devel php5-devel gcc-c++ make
-RUN echo "/usr" | pecl install memcached
-RUN zypper --non-interactive rm -u php5-pear libmemcached-devel php5-devel gcc-c++ make
+# Set /init as the default
+CMD ["/init"]
+
+# Require /certs volume mounts
+VOLUME ["/certs"]
 
 # Install the Memcache configuration (you should add this to your baked image's Dockerfile if you want Memcache sessions)
 #ADD memcached.ini /etc/php5/conf.d/memcached.ini
