@@ -87,7 +87,7 @@ chmod a+x /etc/cron.weekly/letsencrypt
 # Perform the Let's Encrypt certificate issuance for all domains
 for DOMAIN in $LETS_ENCRYPT_DOMAINS; do
     echo "Obtaining SSL certificate for $DOMAIN..."
-    /srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $DOMAIN
+    /srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $DOMAIN || true
     echo "/srv/letsencrypt/letsencrypt-auto certonly --keep --debug --agree-tos --webroot -w /srv/letsencrypt-webroot --email $LETS_ENCRYPT_EMAIL -d $DOMAIN" >> /etc/cron.weekly/letsencrypt
 done
 
