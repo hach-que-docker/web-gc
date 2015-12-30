@@ -102,6 +102,7 @@ for a in /config/servers/*; do
         echo "WARNING: $a.ssl does not exist, so this server can't run in SSL mode.  You need"
         echo "to create $a.ssl with the SSL-only options, such as the path to the Let's Encrypt"
         echo "certificates that were just generated for the domain (if any)."
+        continue
     fi
 
     echo "Generating a HTTPS server for $a..." 
