@@ -54,6 +54,9 @@ ADD 00-hosts /etc/init.simple/00-hosts
 ADD 50-cronie /etc/init.simple/50-cronie
 ADD php-fpm.conf /etc/php5/fpm/php-fpm.conf
 ADD php.ini /etc/php5/fpm/php.ini
+ADD error.conf /etc/nginx/error.conf
+ADD *.htm /srv/error-pages/
+RUN chown -R nginx:nginx /srv/error-pages
 
 # Remove 00-patch so that launching in pre-baked images runs faster
 RUN rm /etc/init.simple/00-patch

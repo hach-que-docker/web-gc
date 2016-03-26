@@ -47,6 +47,8 @@ server {
     location /.well-known/ {
         root /srv/letsencrypt-webroot;
     }
+
+    include error.conf;
 }
 EOF
 
@@ -134,6 +136,8 @@ server {
     location /.well-known/ {
         root /srv/letsencrypt-webroot;
     }
+    
+    include error.conf;
 }
 EOF
 
