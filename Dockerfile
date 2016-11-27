@@ -58,9 +58,6 @@ ADD error.conf /etc/nginx/error.conf
 ADD *.htm /srv/error-pages/
 RUN chown -R nginx:nginx /srv/error-pages
 
-# Remove 00-patch so that launching in pre-baked images runs faster
-RUN rm /etc/init.simple/00-patch
-
 # Set /init as the default
 CMD ["/init"]
 
