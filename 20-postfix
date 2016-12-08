@@ -1,11 +1,16 @@
 #!/bin/bash
 
-source /etc/sysconfig/postfix
+set +e
+set +x
 
-/etc/postfix/system/config_postfix
-/etc/postfix/system/update_chroot
-/etc/postfix/system/update_postmaps
-/usr/sbin/postfix start &
-/etc/postfix/system/wait_qmgr 60
-/etc/postfix/system/cond_slp register
+source /etc/sysconfig/postfix || true
 
+/etc/postfix/system/config_postfix || true
+/etc/postfix/system/update_chroot || true
+/etc/postfix/system/update_postmaps || true
+(/usr/sbin/postfix start || true) &
+/etc/postfix/system/wait_qmgr 60 || true
+/etc/postfix/system/cond_slp register || true
+
+set -e
+set -x
